@@ -151,7 +151,7 @@ This functionality enables users to download the resume PDF from an S3 bucket vi
 
 ![alt text](images/s3-4.png)
 
-# Static webapp URL: http://prafulstack.org.s3-website-us-east-1.amazonaws.com
+Static webapp URL: 
 
 ### Lambda Function Setup
 - Steps to Create Lambda Function for Resume Download:
