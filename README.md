@@ -2,6 +2,8 @@
 
 This project leverages AWS serverless services to provide resume download functionality and a visitor counter for a portfolio website. The frontend includes various JavaScript libraries for animations and interactive components, while the backend uses AWS Lambda and DynamoDB to deliver dynamic functionalities.
 
+## 👉 [📝 Follow my detailed Blog here ](https://praful.cloud/aws-project-aws-serverless-prafuls-resume-download-web-application)
+
 ![alt text](<images/AWS Blogs- Thumbnail 1200 X 644.gif>)
 
 ## Solution Diagram:AWS Serverless Architecture
