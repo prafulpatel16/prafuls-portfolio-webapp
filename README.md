@@ -1,4 +1,4 @@
-# AWS Project: AWS Serverless Prafuls resume download Web Application
+# 👉 AWS Project: AWS Serverless Prafuls resume download Web Application
 
 This project leverages AWS serverless services to provide resume download functionality and a visitor counter for a portfolio website. The frontend includes various JavaScript libraries for animations and interactive components, while the backend uses AWS Lambda and DynamoDB to deliver dynamic functionalities.
 
@@ -254,5 +254,59 @@ The /visitCount endpoint calls the Lambda function, which increments and returns
 
 ---
 
+
 **Developed by Praful Patel**  
 [🔗 GitHub Project Repo Link](https://github.com/prafulpatel16/prafuls-portfolio-webapp)
+
+
+### Resume Section: Projects
+# AWS Serverless Resume Web Application
+Description: Developed a serverless web application leveraging AWS services to provide resume download functionality and a visitor counter for tracking engagement on a portfolio website. Designed for scalability, cost-effectiveness, and operational efficiency using Terraform for Infrastructure as Code (IaC) automation.
+
+# Key Responsibilities and Contributions:
+
+- Architected Serverless Solution: Designed a serverless architecture using AWS Lambda, API Gateway, S3, and DynamoDB, ensuring high availability, automatic scaling, and efficient resource utilization.
+
+- Implemented Infrastructure as Code (IaC): Automated deployment with Terraform, improving consistency, reducing manual setup time, and facilitating reproducible environments for deployment.
+
+- Resume Download Functionality: Configured an S3 bucket to store the resume PDF, making it accessible via a Lambda function triggered by API Gateway, enhancing user experience with real-time download capability.
+
+- Visitor Counter with DynamoDB: Established a visitor counter using DynamoDB to track site traffic. Developed Lambda logic to increment and retrieve visitor counts, enabling dynamic visitor statistics on the site.
+
+- API Gateway Integration: Set up RESTful endpoints via AWS API Gateway to expose Lambda functions, enabling secure access to backend services and improving application reliability and performance.
+
+- Managed IAM Security: Created secure IAM roles and policies to restrict Lambda access to only necessary resources (S3 and DynamoDB), ensuring application security and adherence to least-privilege principles.
+
+- Monitoring & Logging: Integrated CloudWatch for monitoring and logging Lambda functions, identifying performance bottlenecks, and tracking API usage to improve application reliability.
+
+## Key Duties:
+
+- Deployed Serverless Web Application on AWS: Designed and implemented a portfolio web application with resume download and visitor counter functionalities, using AWS serverless services and ensuring seamless user interactions.
+
+- Automated Infrastructure with Terraform: Wrote Terraform scripts to manage AWS resources, creating a fully automated and version-controlled infrastructure deployment pipeline.
+
+- Developed REST APIs with API Gateway and Lambda: Configured API Gateway endpoints integrated with Lambda for delivering fast, cost-effective backend responses without server maintenance.
+
+- Optimized Security and Resource Access: Defined IAM roles and policies to enforce least-privilege access, securing interactions between Lambda, S3, and DynamoDB.
+
+- Monitored and Enhanced Application Performance: Set up CloudWatch logging and metrics for Lambda functions to analyze usage patterns, optimize API responses, and ensure resource cost efficiency.
+
+
+## Technical Skills 
+- AWS: Lambda, API Gateway, S3, DynamoDB, IAM, CloudWatch
+- Infrastructure as Code (IaC): Terraform
+- Languages: Python (Lambda functions), HCL (Terraform scripting)
+- APIs: REST API development and integration with AWS services
+
+
+## 👉 [📝 Follow my detailed Blog here ](https://praful.cloud/aws-project-aws-serverless-prafuls-resume-download-web-application)
+
+
+## 🌐 Follow my Cloud/DevOps Tech Content and Connect
+
+- [🌐 Website](https://www.praful.cloud)
+- [💼 LinkedIn](https://linkedin.com/in/prafulpatel16)
+- [🐙 GitHub](https://github.com/prafulpatel16/prafulpatel16)
+- [📺 YouTube](https://www.youtube.com/@prafulpatel16)
+- [✍️ Medium](https://medium.com/@prafulpatel16)
+- [📝 Dev.to](https://dev.to/prafulpatel16)
