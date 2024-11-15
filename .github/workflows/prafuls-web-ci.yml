@@ -1,0 +1,65 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - master  # Adjust branch name as needed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Configure AWS Credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::202533534284:role/awsGitHubActionsRole1
+          aws-region: us-east-1
+      
+
+      # Step 2: Set up AWS credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      # Step 3: Install SAM CLI
+      - name: Install SAM CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          pip3 install aws-sam-cli
+
+      # Step 4: Build the SAM application
+      - name: Build SAM Application
+        run: sam build
+
+      # Step 5: Deploy SAM application
+      - name: Deploy SAM Application
+        run: sam deploy --no-confirm-changeset --config-env default
+
+      # Step 6: Fetch S3 Bucket Name from CloudFormation Outputs
+      - name: Fetch S3 Bucket Name
+        id: fetch-s3-bucket
+        run: |
+          S3_BUCKET=$(aws cloudformation describe-stacks \
+            --stack-name prafuls-webapp \
+            --query "Stacks[0].Outputs[?OutputKey=='StaticWebsiteBucketName'].OutputValue" \
+            --output text)
+          echo "S3_BUCKET=$S3_BUCKET" >> $GITHUB_ENV
+
+      # Step 7: Upload Static Site to S3
+      - name: Upload Static Site to S3
+        run: |
+          if [ -z "$S3_BUCKET" ]; then
+            echo "Error: S3_BUCKET is not set. Ensure your CloudFormation stack has been deployed.";
+            exit 1;
+          fi
+          aws s3 sync static-site s3://$S3_BUCKET --delete

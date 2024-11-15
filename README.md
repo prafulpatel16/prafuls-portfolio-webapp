@@ -309,9 +309,210 @@ Description: Developed a serverless web application leveraging AWS services to p
 ![alt text](images/tf1.png)
 
 
+Updated Terraform Code (If Private Access is Needed)
+If you do not need public access, modify the s3_static_website/main.tf to remove the aws_s3_bucket_acl and aws_s3_bucket_policy resources:
+
+resource "aws_s3_bucket" "website_bucket" {
+  bucket = var.website_bucket
+  acl    = "private"   # Ensure the ACL is private
+  # Remove the `aws_s3_bucket_acl` and `aws_s3_bucket_policy` blocks
+}
+
+
+# -----------------------------------------------------------------------------------------
+
+# SAM Deployment 
+
+Following folder contains all the SAM deployment config content along with lambda functions and static web app files
+- cd prafuls-webapp
+
+# SAM Build and Deployment Documentation
+## Introduction
+- This document provides a step-by-step guide to configure, build, and deploy the Serverless Application Model (SAM) project. The project includes:
+
+- Static website hosted on S3
+- Visitor counter and resume download Lambda functions
+- API Gateway for routing
+- DynamoDB for visitor counter
+- CloudFormation for managing resources
+
+## Prerequisites
+Before you begin, ensure the following are installed and configured:
+
+### AWS CLI:
+
+- Install the AWS CLI from here.
+- Configure the CLI
+ 
+ aws configure
+
+### AWS SAM CLI:
+
+- Install the AWS SAM CLI from here.
+- Verify the installation:
+
+sam --version
+
+### Python:
+
+- Install Python 3.8 (specific to this project).
+- Verify the installation:
+
+python3.8 --version
+
+# Project Structure
+
+![alt text](images/sam1.png)
+
+
+## Key Components:
+- visitorCounter/: Lambda function to track and return visitor counts.
+- resumeDownload/: Lambda function to allow resume downloads.
+- static-site/: Static website content for hosting.
+- template.yaml: SAM template to define resources and infrastructure.
+- Makefile: Simplifies build, deploy, and static upload tasks.
+
+
+# Step 1: Configure the SAM Template
+  The template.yaml defines all the resources:
+
+- S3 buckets for static web hosting and resume storage.
+- Lambda functions for visitor count and resume download.
+- DynamoDB table for visitor data.
+- API Gateway for routing requests.
+- Ensure the following configurations are correct:
+
+- Bucket names use !Sub "${AWS::StackName}-[bucket-name]".
+- Lambda environment variables like DYNAMODB_TABLE_NAME and RESUME_BUCKET_NAME.
+
+
+# Step 2: Install Dependencies
+Navigate to each Lambda function directory (visitorCounter and resumeDownload) and create a requirements.txt file with the required Python libraries.
+
+
+- For example: visitorCounter/requirements.txt:
+
+boto3
+
+
+- Run the following commands to install dependencies:
+
+pip install -r visitorCounter/requirements.txt -t visitorCounter/
+pip install -r resumeDownload/requirements.txt -t resumeDownload/
+
+# Step 3: Build the SAM Application
+To build the SAM application, run:
+
+sam build
+
+
+What Happens During sam build?
+The SAM CLI packages dependencies for the Lambda functions.
+The build artifacts are stored in the .aws-sam/build/ directory.
+
+# Step 4: Deploy the Application
+Run the following command to deploy the application:
+
+sam deploy --guided
+
+### Key Deployment Prompts:
+- Stack Name: Enter the CloudFormation stack name (e.g., prafuls-webapp).
+- AWS Region: Specify the region (e.g., us-east-1).
+- Allow SAM CLI IAM Role Creation: Choose y to allow.
+- Save Arguments to Config File: Choose y to save to samconfig.toml.
+- The deployment process:
+
+Packages the application.
+Uploads it to an S3 bucket managed by SAM.
+Deploys the stack using CloudFormation.
+
+
+# Step 5: Upload Static Web Content
+
+After deploying the application, retrieve the S3 bucket name for static content:
+
+
+aws cloudformation describe-stacks --stack-name prafuls-webapp --query "Stacks[0].Outputs[?OutputKey=='StaticWebsiteBucketName'].OutputValue" --output text
+
+- Use the bucket name to upload the static site:
+
+aws s3 sync static-site/ s3://[Bucket-Name]
+
+
+# Step 6: Verify the Deployment
+
+Check the CloudFormation outputs to get the URLs:
+
+aws cloudformation describe-stacks --stack-name prafuls-webapp --query "Stacks[0].Outputs"
+
+Key Outputs:
+
+StaticSiteURL: URL for the hosted website.
+VisitorCounterApiURL: Endpoint for visitor counter API.
+ResumeDownloadApiURL: Endpoint for resume download API.
+
+
+# Step 7: Automate with Makefile
+
+
+Use the provided Makefile to automate the process:
+
+
+S3_BUCKET=$(shell aws cloudformation describe-stacks --stack-name prafuls-webapp --query "Stacks[0].Outputs[?OutputKey=='StaticWebsiteBucketName'].OutputValue" --output text)
+BUILD_DIR=static-site
+
+.PHONY: build deploy upload-static
+
+build:
+	sam build
+
+deploy: build
+	sam deploy
+
+upload-static:
+	@if [ -z "$(S3_BUCKET)" ]; then \
+		echo "Error: S3_BUCKET is not set."; \
+		exit 1; \
+	fi
+	aws s3 sync $(BUILD_DIR) s3://$(S3_BUCKET) --delete
 
 
 
+Run the following commands:
+
+1. Build
+make build
+
+![alt text](images/make1.png)
+
+
+2. Deploy 
+make deploy
+
+3. Upload Static content
+make upload-static
+
+
+### Troubleshooting
+- Permission Issues: Ensure the IAM user or role has the necessary permissions for S3, Lambda, and CloudFormation.
+
+- AccessControlListNotSupported Error: Remove --acl public-read and use bucket policies for public access.
+
+- Python Errors: Ensure python3.8 is installed and available in the PATH.
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ---------------------------------#
 
 ## 👉 [📝 Follow my detailed Blog here ](https://praful.cloud/aws-project-aws-serverless-prafuls-resume-download-web-application)
 
