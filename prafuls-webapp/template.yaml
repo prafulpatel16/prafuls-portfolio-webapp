@@ -1,0 +1,183 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Serverless Portfolio Web Application
+
+Resources:
+  # S3 Bucket for Static Web Hosting
+  S3StaticWebAppBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-s3staticwebapp"
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    DeletionPolicy: Retain
+
+  # S3 Bucket Policy for Static Web Hosting
+  S3StaticWebAppBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3StaticWebAppBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"
+            Action: "s3:GetObject"
+            Resource: !Sub "${S3StaticWebAppBucket.Arn}/*"
+
+  # S3 Bucket for Resume Storage
+  ResumeBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-resumebucket"
+      AccessControl: Private
+    DeletionPolicy: Retain
+
+  # IAM Role for Lambda Execution
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::StackName}-LambdaExecutionRole"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "LambdaDynamoDBS3Policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - dynamodb:UpdateItem
+                  - dynamodb:GetItem
+                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${VisitorCounterTable}"
+              - Effect: "Allow"
+                Action: 
+                  - s3:PutBucketPolicy
+                  - s3:GetBucketPolicy
+                  - s3:GetBucketLocation
+                Resource: 
+                  - !Sub "${ResumeBucket.Arn}/*"
+                  - !Sub "${S3StaticWebAppBucket.Arn}/*"
+
+  # Lambda Function for Visitor Counter
+  VisitorCounterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-VisitorCounter"
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      CodeUri: visitorCounter/
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref VisitorCounterTable
+      Events:
+        GetVisitorCount:
+          Type: Api
+          Properties:
+            Path: /visitorcount
+            Method: GET
+
+  # Lambda Function for Resume Download
+  ResumeDownloadFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-ResumeDownload"
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      CodeUri: resumeDownload/
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          RESUME_BUCKET_NAME: !Ref ResumeBucket
+      Events:
+        DownloadResume:
+          Type: Api
+          Properties:
+            Path: /resume/download
+            Method: GET
+
+  # DynamoDB Table for Visitor Counter
+  VisitorCounterTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${AWS::StackName}-VisitorCounterTable"
+      AttributeDefinitions:
+        - AttributeName: visitorId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: visitorId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  # API Gateway Definition
+  ResumeWebAppAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "${AWS::StackName}-ResumeWebAppAPI"
+      StageName: Prod
+      DefinitionBody:
+        openapi: 3.0.1
+        info:
+          title: Resume WebApp API
+          version: 1.0
+        paths:
+          /visitorcount:
+            get:
+              x-amazon-apigateway-integration:
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${VisitorCounterFunction.Arn}/invocations"
+                httpMethod: POST
+                type: aws_proxy
+          /resume/download:
+            get:
+              x-amazon-apigateway-integration:
+                uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ResumeDownloadFunction.Arn}/invocations"
+                httpMethod: POST
+                type: aws_proxy
+
+  # API Gateway Permission for Lambda to allow API Gateway to invoke Lambda
+  VisitorCounterApiPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref VisitorCounterFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ResumeWebAppAPI}/*/GET/visitorcount"
+
+  ResumeDownloadApiPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ResumeDownloadFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ResumeWebAppAPI}/*/GET/resume/download"
+
+Outputs:
+  StaticSiteURL:
+    Description: "URL of the static website hosted in S3"
+    Value: !GetAtt S3StaticWebAppBucket.WebsiteURL
+
+  StaticWebsiteBucketName:
+    Description: "Name of the S3 bucket for the static website"
+    Value: !Ref S3StaticWebAppBucket
+    Export:
+      Name: "StaticWebsiteBucketName"
+
+  ResumeBucketArn:
+    Description: "ARN of the Resume S3 bucket"
+    Value: !GetAtt ResumeBucket.Arn
+
+  VisitorCounterApiURL:
+    Description: "Visitor Counter API endpoint"
+    Value: !Sub "https://${ResumeWebAppAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/visitorcount"
+
+  ResumeDownloadApiURL:
+    Description: "Resume Download API endpoint"
+    Value: !Sub "https://${ResumeWebAppAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/resume/download"

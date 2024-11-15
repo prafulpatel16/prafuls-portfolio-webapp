@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Praful Patel-Cloud/DevOps Engineer Template</title>
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="assets/css/style.css" rel="stylesheet">
+
+  <style>
+    #videoPlayer {
+      margin-top: 20px;
+      display: none;
+    }
+
+    #uploadedVideo {
+      width: 100%;
+      height: auto;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header">
+    <!-- Your existing header code here -->
+  </header><!-- End Header -->
+
+  <!-- ======= Hero Section ======= -->
+  <section id="hero" class="d-flex flex-column justify-content-center align-items-center">
+    <div class="hero-container" data-aos="fade-in">
+      <h1>PRAFUL PATEL</h1>
+      <p>I'm <span class="typed" data-typed-items="Cloud Engineer, DevOps Engineer, Cloud Automation Engineer"></span></p>
+    </div>
+  </section><!-- End Hero -->
+
+  <main id="main">
+
+    <!-- ======= About Section ======= -->
+    <section id="about" class="about">
+      <!-- Your existing About section code here -->
+    </section><!-- End About Section -->
+
+    <!-- ======= Resume Section ======= -->
+    <section id="resume" class="resume">
+      <div class="container">
+        <div class="section-title">
+          <h2>Resume</h2>
+          <p>Click the button below to download my resume:</p>
+          <a href="https://w4hvagj0k2.execute-api.us-east-1.amazonaws.com/dev/resume" class="btn btn-primary">Download Resume</a>
+          <p>I have acquired professional expertise in cloud infrastructure management, DevOps practices, and automation. My experience spans designing and implementing scalable cloud solutions, establishing IT infrastructure using the latest technologies, and optimizing systems with robust processes and procedures.</p>
+        </div>
+
+        <!-- Video Playback Section -->
+        <div class="video-playback mt-5">
+          <h2>Play Video - About Me</h2>
+          <button class="btn btn-primary mb-3" onclick="playVideoFromS3()">Play Video</button>
+          <div id="videoPlayer">
+            <video id="uploadedVideo" controls></video>
+          </div>
+        </div>
+      </div>
+    </section><!-- End Resume Section -->
+
+    <!-- Add other sections as before (Portfolio, Services, etc.) -->
+
+    <!-- Visitor Counter Script -->
+    <script>
+      const apiUrl = 'https://w4hvagj0k2.execute-api.us-east-1.amazonaws.com/dev'; // Replace with your actual API Gateway endpoint
+
+      // Function to play video from S3
+      function playVideoFromS3() {
+        const videoUrl = 'https://<YOUR_S3_BUCKET_NAME>.s3.<YOUR_REGION>.amazonaws.com/videos/about-me.mp4'; // Replace with your actual S3 video URL
+        const videoPlayer = document.getElementById('videoPlayer');
+        const uploadedVideo = document.getElementById('uploadedVideo');
+
+        uploadedVideo.src = videoUrl;
+        videoPlayer.style.display = 'block';
+      }
+
+      // Function to handle error without showing prompt
+      function showErrorMessage(message) {
+          console.error(message);
+      }
+
+      // Fetch visitor count
+      async function fetchVisitorCount() {
+          try {
+              const response = await fetch(`${apiUrl}/visitCount`);
+              if (response.ok) {
+                  const data = await response.json();
+                  document.getElementById('visitorCount').textContent = data.visits;
+                  console.log('Visitor count fetched:', data.visits);
+              } else {
+                  const error = await response.json();
+                  showErrorMessage(error.message || 'Failed to fetch visitor count.');
+              }
+          } catch (err) {
+              showErrorMessage('Error occurred while fetching visitor count.');
+          }
+      }
+
+      // Fetch the visitor count on page load
+      fetchVisitorCount();
+    </script>
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+    <!-- Your existing footer code here -->
+  </footer><!-- End Footer -->
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="assets/vendor/purecounter/purecounter.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/typed.js/typed.min.js"></script>
+  <script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>

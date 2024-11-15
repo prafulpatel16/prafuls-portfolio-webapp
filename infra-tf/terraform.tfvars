@@ -1,0 +1,6 @@
+website_bucket = "prafuls-static-web-2025-tf"
+resume_bucket  = "prafuls-resume-stored-tf"
+resume_key     = "sample_resume.pdf"
+lambda_bucket = "lambda-function-bucket-tf"
+region = "us-east-1"
+account_id = "202533534284"

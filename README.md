@@ -301,6 +301,18 @@ Description: Developed a serverless web application leveraging AWS services to p
 - APIs: REST API development and integration with AWS services
 
 
+
+## Troubleshooting
+
+# Terraform Errors resolution
+
+![alt text](images/tf1.png)
+
+
+
+
+
+
 ## 👉 [📝 Follow my detailed Blog here ](https://praful.cloud/aws-project-aws-serverless-prafuls-resume-download-web-application)
 
 

@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS SAM CLI Nested Stack for Auto Dependency Layer Creation
+Metadata:
+  SamCliInfo: 1.127.0
+  key: AWS SAM CLI sync command
+Outputs:
+  ResumeDownloadFunction2d5cffd1DepLayer:
+    Value:
+      Ref: ResumeDownloadFunction2d5cffd1DepLayer
+  VisitorCounterFunction61632ab3DepLayer:
+    Value:
+      Ref: VisitorCounterFunction61632ab3DepLayer
+Resources:
+  ResumeDownloadFunction2d5cffd1DepLayer:
+    Metadata:
+      CreatedBy: AWS SAM CLI sync command
+    Properties:
+      CompatibleRuntimes:
+      - python3.8
+      ContentUri: /mnt/c/prafuls-data/devops-work/prafuls-portfolio-webapp/prafuls-webapp/.aws-sam/auto-dependency-layer/ResumeDownloadFunction2d5cffd1DepLayer
+      Description: Auto created layer for dependencies of function ResumeDownloadFunction
+      LayerName: prafuls-app55aaa53d-ResumeDownloadFunction2d5cffd1-DepLayer
+      RetentionPolicy: Delete
+    Type: AWS::Serverless::LayerVersion
+  VisitorCounterFunction61632ab3DepLayer:
+    Metadata:
+      CreatedBy: AWS SAM CLI sync command
+    Properties:
+      CompatibleRuntimes:
+      - python3.8
+      ContentUri: /mnt/c/prafuls-data/devops-work/prafuls-portfolio-webapp/prafuls-webapp/.aws-sam/auto-dependency-layer/VisitorCounterFunction61632ab3DepLayer
+      Description: Auto created layer for dependencies of function VisitorCounterFunction
+      LayerName: prafuls-app55aaa53d-VisitorCounterFunction61632ab3-DepLayer
+      RetentionPolicy: Delete
+    Type: AWS::Serverless::LayerVersion
+Transform: AWS::Serverless-2016-10-31
