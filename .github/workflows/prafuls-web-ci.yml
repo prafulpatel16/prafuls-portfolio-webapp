@@ -8,8 +8,11 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    permissions:
+      id-token: write  # Required to generate OIDC token
+      contents: read   # Required to read repo contents
     steps:
+
       # Step 1: Checkout the repository
       - name: Checkout Code
         uses: actions/checkout@v3
