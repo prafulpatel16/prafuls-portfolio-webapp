@@ -34,7 +34,7 @@ jobs:
           sudo apt-get install -y python3.8 python3.8-distutils python3-pip
           python3.8 --version
 
-      # Step 4: Set Python 3.8 as Default for SAM
+      # Step 4: Set Python 3.8 as Default
       - name: Set Python 3.8 as Default
         run: |
           sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1
@@ -58,7 +58,10 @@ jobs:
       # Step 7: Deploy SAM application
       - name: Deploy SAM Application
         run: |
-          sam deploy --template-file .aws-sam/build/template.yaml --no-confirm-changeset --config-env default
+          sam deploy --template-file .aws-sam/build/template.yaml \
+                     --stack-name prafuls-webapp \
+                     --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+                     --no-confirm-changeset --region us-east-1
 
       # Step 8: Fetch S3 Bucket Name from CloudFormation Outputs
       - name: Fetch S3 Bucket Name
