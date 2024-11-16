@@ -11,6 +11,7 @@ jobs:
     permissions:
       id-token: write  # Required to generate OIDC token
       contents: read   # Required to read repo contents
+
     steps:
 
       # Step 1: Checkout the repository
@@ -33,11 +34,13 @@ jobs:
 
       # Step 4: Build the SAM application
       - name: Build SAM Application
-        run: sam build
+        run: |
+          sam build --template prafuls-webapp/template.yaml --build-dir .aws-sam/build
 
       # Step 5: Deploy SAM application
       - name: Deploy SAM Application
-        run: sam deploy --no-confirm-changeset --config-env default
+        run: |
+          sam deploy --template-file .aws-sam/build/template.yaml --no-confirm-changeset --config-env default
 
       # Step 6: Fetch S3 Bucket Name from CloudFormation Outputs
       - name: Fetch S3 Bucket Name
