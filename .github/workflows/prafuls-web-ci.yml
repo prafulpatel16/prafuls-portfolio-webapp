@@ -25,24 +25,34 @@ jobs:
           role-to-assume: arn:aws:iam::202533534284:role/awsGitHubActionsprafulswebAppRole
           aws-region: us-east-1
 
-      # Step 3: Install SAM CLI
-      - name: Install SAM CLI
+      # Step 3: Install Python 3.8
+      - name: Install Python 3.8
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository ppa:deadsnakes/ppa
+          sudo apt-get update
+          sudo apt-get install -y python3.8 python3.8-distutils python3-pip
+          python3.8 --version
+
+      # Step 4: Install SAM CLI
+      - name: Install SAM CLI
+        run: |
           pip3 install aws-sam-cli
 
-      # Step 4: Build the SAM application
+      # Step 5: Build the SAM application
       - name: Build SAM Application
+        env:
+          PATH: /usr/bin:$PATH  # Ensure Python 3.8 is in the PATH
         run: |
           sam build --template prafuls-webapp/template.yaml --build-dir .aws-sam/build
 
-      # Step 5: Deploy SAM application
+      # Step 6: Deploy SAM application
       - name: Deploy SAM Application
         run: |
           sam deploy --template-file .aws-sam/build/template.yaml --no-confirm-changeset --config-env default
 
-      # Step 6: Fetch S3 Bucket Name from CloudFormation Outputs
+      # Step 7: Fetch S3 Bucket Name from CloudFormation Outputs
       - name: Fetch S3 Bucket Name
         id: fetch-s3-bucket
         run: |
@@ -52,7 +62,7 @@ jobs:
             --output text)
           echo "S3_BUCKET=$S3_BUCKET" >> $GITHUB_ENV
 
-      # Step 7: Upload Static Site to S3
+      # Step 8: Upload Static Site to S3
       - name: Upload Static Site to S3
         run: |
           if [ -z "$S3_BUCKET" ]; then
