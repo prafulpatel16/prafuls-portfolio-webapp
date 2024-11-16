@@ -25,30 +25,42 @@ jobs:
           role-to-assume: arn:aws:iam::202533534284:role/awsGitHubActionsprafulswebAppRole
           aws-region: us-east-1
 
-      # Step 3: Install Python 3.8 and SAM CLI
-      - name: Install Python 3.8 and SAM CLI
+      # Step 3: Install Python 3.8
+      - name: Install Python 3.8
         run: |
           sudo apt-get update
-          sudo add-apt-repository ppa:deadsnakes/ppa -y  # Add repository for Python 3.8
+          sudo add-apt-repository ppa:deadsnakes/ppa -y  # Add repository for older Python versions
           sudo apt-get update
           sudo apt-get install -y python3.8 python3.8-distutils python3-pip
           python3.8 --version
-          pip3 install aws-sam-cli
-          sam --version  # Verify SAM installation
 
-      # Step 4: Build the SAM application
+      # Step 4: Set Python 3.8 as Default for SAM
+      - name: Set Python 3.8 as Default
+        run: |
+          sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1
+          sudo update-alternatives --set python /usr/bin/python3.8
+          python --version
+
+      # Step 5: Install SAM CLI
+      - name: Install SAM CLI
+        run: |
+          pip3 install aws-sam-cli
+          sam --version  # Verify installation
+
+      # Step 6: Build the SAM application
       - name: Build SAM Application
         env:
-          PATH: /usr/local/bin:$PATH  # Ensure the correct path for SAM
+          SAM_CLI_TELEMETRY: 0  # Disable telemetry to avoid unnecessary warnings
+          PYTHONPATH: /usr/bin/python3.8
         run: |
           sam build --template prafuls-webapp/template.yaml --build-dir .aws-sam/build
 
-      # Step 5: Deploy SAM application
+      # Step 7: Deploy SAM application
       - name: Deploy SAM Application
         run: |
           sam deploy --template-file .aws-sam/build/template.yaml --no-confirm-changeset --config-env default
 
-      # Step 6: Fetch S3 Bucket Name from CloudFormation Outputs
+      # Step 8: Fetch S3 Bucket Name from CloudFormation Outputs
       - name: Fetch S3 Bucket Name
         id: fetch-s3-bucket
         run: |
@@ -58,7 +70,7 @@ jobs:
             --output text)
           echo "S3_BUCKET=$S3_BUCKET" >> $GITHUB_ENV
 
-      # Step 7: Upload Static Site to S3
+      # Step 9: Upload Static Site to S3
       - name: Upload Static Site to S3
         run: |
           if [ -z "$S3_BUCKET" ]; then
