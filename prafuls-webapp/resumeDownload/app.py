@@ -20,7 +20,7 @@ def lambda_handler(event, context):
             'statusCode': 200,
             'headers': {
                 'Content-Type': 'application/pdf',
-                'Content-Disposition': 'attachment; filename="Praful_Resume.pdf"',
+                'Content-Disposition': 'attachment; filename="sample_resume.pdf"',
             },
             'body': base64.b64encode(pdf_content).decode('utf-8'),
             'isBase64Encoded': True  # This must be True for binary files
