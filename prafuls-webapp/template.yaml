@@ -7,7 +7,7 @@ Resources:
   S3StaticWebAppBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "${AWS::StackName}-s3staticwebapp"
+      BucketName: !Sub !Sub "${AWS::StackName}-${AWS::Region}-staticwebapp"
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: error.html
@@ -31,7 +31,7 @@ Resources:
   ResumeBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "${AWS::StackName}-resumebucket"
+      BucketName: !Sub "${AWS::StackName}-${AWS::Region)-resumebucket"
       AccessControl: Private
     DeletionPolicy: Retain
 
