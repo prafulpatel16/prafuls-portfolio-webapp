@@ -7,7 +7,7 @@ Resources:
   S3StaticWebAppBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub !Sub "${AWS::StackName}-${AWS::Region}-staticwebapp"
+      BucketName: !Sub "${AWS::StackName}-${AWS::Region}-staticwebapp"
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: error.html
