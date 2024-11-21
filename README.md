@@ -484,10 +484,11 @@ Run the following commands:
 make build
 
 ![alt text](images/make1.png)
-
+![alt text](images/make2.png)
 
 2. Deploy 
 make deploy
+![alt text](images/make3.png)
 
 3. Upload Static content
 make upload-static
@@ -501,6 +502,10 @@ make upload-static
 - Python Errors: Ensure python3.8 is installed and available in the PATH.
 
 
+Bucket Policy:
+aws s3api put-public-access-block \
+    --bucket prafuls-webapp-s3staticwebapp \
+    --public-access-block-configuration BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false
 
 
 
