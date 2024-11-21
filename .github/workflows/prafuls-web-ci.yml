@@ -53,13 +53,13 @@ jobs:
           SAM_CLI_TELEMETRY: 0  # Disable telemetry to avoid unnecessary warnings
           PYTHONPATH: /usr/bin/python3.8
         run: |
-          sam build --template prafuls-webapp/template.yaml --build-dir .aws-sam/build
+          sam build --template prafuls-serverless-app/template.yaml --build-dir .aws-sam/build
 
       # Step 7: Deploy SAM application
       - name: Deploy SAM Application
         run: |
           sam deploy --template-file .aws-sam/build/template.yaml \
-                     --stack-name prafuls-webapp \
+                     --stack-name prafuls-serverless-app \
                      --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
                      --no-confirm-changeset --region us-east-1 \
                      --resolve-s3  # Automatically create a managed bucket
@@ -70,7 +70,7 @@ jobs:
         id: fetch-s3-bucket
         run: |
           S3_BUCKET=$(aws cloudformation describe-stacks \
-            --stack-name prafuls-webapp \
+            --stack-name prafuls-serverles-app \
             --query "Stacks[0].Outputs[?OutputKey=='StaticWebsiteBucketName'].OutputValue" \
             --output text)
           echo "S3_BUCKET=$S3_BUCKET" >> $GITHUB_ENV
