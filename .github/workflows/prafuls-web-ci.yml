@@ -63,6 +63,7 @@ jobs:
                      --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
                      --no-confirm-changeset --region us-east-1 \
                      --resolve-s3  # Automatically create a managed bucket
+                     --disable-rollback
 
       # Step 8: Fetch S3 Bucket Name from CloudFormation Outputs
       - name: Fetch S3 Bucket Name
