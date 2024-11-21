@@ -11,6 +11,11 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: error.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        IgnorePublicAcls: false
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
     DeletionPolicy: Retain
 
   # S3 Bucket Policy for Static Web Hosting
@@ -31,8 +36,13 @@ Resources:
   ResumeBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "${AWS::StackName}-${AWS::Region)-resumebucket"
+      BucketName: !Sub "${AWS::StackName}-${AWS::Region}-resumebucket"
       AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
     DeletionPolicy: Retain
 
   # IAM Role for Lambda Execution
@@ -58,11 +68,10 @@ Resources:
                   - dynamodb:GetItem
                 Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${VisitorCounterTable}"
               - Effect: "Allow"
-                Action: 
-                  - s3:PutBucketPolicy
-                  - s3:GetBucketPolicy
-                  - s3:GetBucketLocation
-                Resource: 
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource:
                   - !Sub "${ResumeBucket.Arn}/*"
                   - !Sub "${S3StaticWebAppBucket.Arn}/*"
 
@@ -142,23 +151,6 @@ Resources:
                 httpMethod: POST
                 type: aws_proxy
 
-  # API Gateway Permission for Lambda to allow API Gateway to invoke Lambda
-  VisitorCounterApiPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref VisitorCounterFunction
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ResumeWebAppAPI}/*/GET/visitorcount"
-
-  ResumeDownloadApiPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref ResumeDownloadFunction
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ResumeWebAppAPI}/*/GET/resume/download"
-
 Outputs:
   StaticSiteURL:
     Description: "URL of the static website hosted in S3"
@@ -167,8 +159,6 @@ Outputs:
   StaticWebsiteBucketName:
     Description: "Name of the S3 bucket for the static website"
     Value: !Ref S3StaticWebAppBucket
-    Export:
-      Name: "StaticWebsiteBucketName"
 
   ResumeBucketArn:
     Description: "ARN of the Resume S3 bucket"
