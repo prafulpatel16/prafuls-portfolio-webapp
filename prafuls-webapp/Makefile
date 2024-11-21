@@ -1,5 +1,5 @@
-S3_STATIC_BUCKET=$(shell aws cloudformation describe-stacks --stack-name prafuls-webapp --query "Stacks[0].Outputs[?OutputKey=='StaticWebsiteBucketName'].OutputValue" --output text)
-RESUME_BUCKET=$(shell aws cloudformation describe-stacks --stack-name prafuls-webapp --query "Stacks[0].Outputs[?OutputKey=='ResumeBucketArn'].OutputValue" --output text | cut -d':' -f6)
+S3_STATIC_BUCKET=$(shell aws cloudformation describe-stacks --stack-name prafuls-serverless-app --query "Stacks[0].Outputs[?OutputKey=='StaticWebsiteBucketName'].OutputValue" --output text)
+RESUME_BUCKET=$(shell aws cloudformation describe-stacks --stack-name prafuls-serverless-app --query "Stacks[0].Outputs[?OutputKey=='ResumeBucketArn'].OutputValue" --output text | cut -d':' -f6)
 BUILD_DIR=static-site
 RESUME_FILE=sample_resume.pdf  # Update this with your resume file path
 
