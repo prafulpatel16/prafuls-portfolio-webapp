@@ -46,34 +46,42 @@ Resources:
     DeletionPolicy: Retain
 
   # IAM Role for Lambda Execution
-  LambdaExecutionRole:
-    Type: AWS::IAM::Role
+  # Attach Policy to LambdaExecutionRole
+  LambdaExecutionPolicy:
+    Type: AWS::IAM::Policy
     Properties:
-      RoleName: !Sub "${AWS::StackName}-LambdaExecutionRole"
-      AssumeRolePolicyDocument:
+      PolicyName: "LambdaDynamoDBS3Policy"
+      Roles:
+        - !Ref LambdaExecutionRole
+      PolicyDocument:
         Version: "2012-10-17"
         Statement:
           - Effect: "Allow"
-            Principal:
-              Service: "lambda.amazonaws.com"
-            Action: "sts:AssumeRole"
-      Policies:
-        - PolicyName: "LambdaDynamoDBS3Policy"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: "Allow"
-                Action:
-                  - dynamodb:UpdateItem
-                  - dynamodb:GetItem
-                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${VisitorCounterTable}"
-              - Effect: "Allow"
-                Action:
-                  - s3:GetObject
-                  - s3:PutObject
-                Resource:
-                  - !Sub "${ResumeBucket.Arn}/*"
-                  - !Sub "${S3StaticWebAppBucket.Arn}/*"
+            Action:
+              - dynamodb:UpdateItem
+              - dynamodb:GetItem
+            Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${VisitorCounterTable}"
+          - Effect: "Allow"
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+            Resource:
+              - !Sub "${ResumeBucket.Arn}/*"
+              - !Sub "${S3StaticWebAppBucket.Arn}/*"
+          - Effect: "Allow"
+            Action:
+              - iam:CreateRole
+              - iam:PutRolePolicy
+              - iam:TagRole
+              - iam:PassRole
+            Resource: !Sub "arn:aws:iam::${AWS::AccountId}:role/${AWS::StackName}-LambdaExecutionRole"
+          - Effect: "Allow"
+            Action:
+              - iam:ListRoles
+              - iam:GetRole
+              - iam:ListRolePolicies
+              - iam:GetRolePolicy
+            Resource: "*"
 
   # Lambda Function for Visitor Counter
   VisitorCounterFunction:
