@@ -74,6 +74,11 @@ Resources:
                 Resource:
                   - !Sub "${ResumeBucket.Arn}/*"
                   - !Sub "${S3StaticWebAppBucket.Arn}/*"
+      Tags:
+      - Key: Environment
+        Value: Production
+      - Key: Owner
+        Value: Praful                
 
   # Lambda Function for Visitor Counter
   VisitorCounterFunction:
@@ -102,7 +107,7 @@ Resources:
       Handler: app.lambda_handler
       Runtime: python3.8
       CodeUri: resumeDownload/
-      Role: !GetAtt LambdaExecutionRole.Arn
+      Role: !GetAtt ${AWS::StackName}-LambdaExecutionRole.Arn
       Environment:
         Variables:
           RESUME_BUCKET_NAME: !Ref ResumeBucket
