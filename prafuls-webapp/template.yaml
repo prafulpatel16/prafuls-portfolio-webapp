@@ -3,6 +3,36 @@ Transform: AWS::Serverless-2016-10-31
 Description: Serverless Portfolio Web Application
 
 Resources:
+  # IAM Role for Lambda Execution
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::StackName}-LambdaExecutionRole"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "LambdaDynamoDBS3Policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - dynamodb:UpdateItem
+                  - dynamodb:GetItem
+                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${VisitorCounterTable}"
+              - Effect: "Allow"
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource:
+                  - !Sub "${ResumeBucket.Arn}/*"
+                  - !Sub "${S3StaticWebAppBucket.Arn}/*"
+
   # S3 Bucket for Static Web Hosting
   S3StaticWebAppBucket:
     Type: AWS::S3::Bucket
@@ -45,41 +75,6 @@ Resources:
         RestrictPublicBuckets: true
     DeletionPolicy: Retain
 
-  # IAM Role for Lambda Execution
-  LambdaExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub "${AWS::StackName}-LambdaExecutionRole"
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Principal:
-              Service: "lambda.amazonaws.com"
-            Action: "sts:AssumeRole"
-      Policies:
-        - PolicyName: "LambdaDynamoDBS3Policy"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: "Allow"
-                Action:
-                  - dynamodb:UpdateItem
-                  - dynamodb:GetItem
-                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${VisitorCounterTable}"
-              - Effect: "Allow"
-                Action:
-                  - s3:GetObject
-                  - s3:PutObject
-                Resource:
-                  - !Sub "${ResumeBucket.Arn}/*"
-                  - !Sub "${S3StaticWebAppBucket.Arn}/*"
-      Tags:
-      - Key: Environment
-        Value: Production
-      - Key: Owner
-        Value: Praful                
-
   # Lambda Function for Visitor Counter
   VisitorCounterFunction:
     Type: AWS::Serverless::Function
@@ -107,7 +102,7 @@ Resources:
       Handler: app.lambda_handler
       Runtime: python3.8
       CodeUri: resumeDownload/
-      Role: !GetAtt ${AWS::StackName}-LambdaExecutionRole.Arn
+      Role: !GetAtt LambdaExecutionRole.Arn
       Environment:
         Variables:
           RESUME_BUCKET_NAME: !Ref ResumeBucket
