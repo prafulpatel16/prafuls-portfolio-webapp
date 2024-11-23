@@ -105,7 +105,7 @@ ResumeDownloadFunction:
     Role: !GetAtt LambdaExecutionRole.Arn
     Environment:
       Variables:
-        RESUME_BUCKET: !Ref ResumeBucket
+        RESUME_BUCKET_NAME: !Ref ResumeBucket
         RESUME_KEY: sample_resume.pdf
     Events:
       DownloadResume:
