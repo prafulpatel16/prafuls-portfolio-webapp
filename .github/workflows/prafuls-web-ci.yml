@@ -63,14 +63,14 @@ jobs:
                      --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
                      --no-confirm-changeset --region us-east-1 \
                      --resolve-s3  # Automatically create a managed bucket
-                     --disable-rollback
+             
 
       # Step 8: Fetch S3 Bucket Name from CloudFormation Outputs
       - name: Fetch S3 Bucket Name
         id: fetch-s3-bucket
         run: |
           S3_BUCKET=$(aws cloudformation describe-stacks \
-            --stack-name prafuls-serverles-app \
+            --stack-name prafuls-serverless-app \
             --query "Stacks[0].Outputs[?OutputKey=='StaticWebsiteBucketName'].OutputValue" \
             --output text)
           echo "S3_BUCKET=$S3_BUCKET" >> $GITHUB_ENV
@@ -78,8 +78,9 @@ jobs:
       # Step 9: Upload Static Site to S3
       - name: Upload Static Site to S3
         run: |
+          echo "Deploying to S3 Bucket: $S3_BUCKET"
           if [ -z "$S3_BUCKET" ]; then
             echo "Error: S3_BUCKET is not set. Ensure your CloudFormation stack has been deployed.";
             exit 1;
           fi
-          aws s3 sync static-site s3://$S3_BUCKET --delete
+          aws s3 sync prafuls-webapp/static-site s3://$S3_BUCKET --delete
