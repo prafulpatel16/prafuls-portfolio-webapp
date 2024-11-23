@@ -7,7 +7,7 @@ from botocore.exceptions import ClientError
 s3 = boto3.client('s3')
 
 def lambda_handler(event, context):
-    bucket_name = os.getenv('S3_BUCKET_NAME')
+    bucket_name = os.getenv('RESUME_BUCKET')
     resume_key = os.getenv('RESUME_KEY')
 
     try:

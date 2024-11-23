@@ -95,23 +95,24 @@ Resources:
             Method: GET
 
   # Lambda Function for Resume Download
-  ResumeDownloadFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub "${AWS::StackName}-ResumeDownload"
-      Handler: app.lambda_handler
-      Runtime: python3.8
-      CodeUri: resumeDownload/
-      Role: !GetAtt LambdaExecutionRole.Arn
-      Environment:
-        Variables:
-          RESUME_BUCKET_NAME: !Ref ResumeBucket
-      Events:
-        DownloadResume:
-          Type: Api
-          Properties:
-            Path: /resume/download
-            Method: GET
+ResumeDownloadFunction:
+  Type: AWS::Serverless::Function
+  Properties:
+    FunctionName: !Sub "${AWS::StackName}-ResumeDownload"
+    Handler: app.lambda_handler
+    Runtime: python3.8
+    CodeUri: resumeDownload/
+    Role: !GetAtt LambdaExecutionRole.Arn
+    Environment:
+      Variables:
+        RESUME_BUCKET: !Ref ResumeBucket
+        RESUME_KEY: sample_resume.pdf
+    Events:
+      DownloadResume:
+        Type: Api
+        Properties:
+          Path: /resume/download
+          Method: GET
 
   # DynamoDB Table for Visitor Counter
   VisitorCounterTable:
