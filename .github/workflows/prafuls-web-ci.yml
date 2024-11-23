@@ -29,7 +29,7 @@ jobs:
       - name: Install Python 3.8
         run: |
           sudo apt-get update
-          sudo add-apt-repository ppa:deadsnakes/ppa -y  # Add repository for older Python versions
+          sudo add-apt-repository ppa:deadsnakes/ppa -y
           sudo apt-get update
           sudo apt-get install -y python3.8 python3.8-distutils python3-pip
           python3.8 --version
@@ -45,42 +45,56 @@ jobs:
       - name: Install SAM CLI
         run: |
           pip3 install aws-sam-cli
-          sam --version  # Verify installation
+          sam --version
 
       # Step 6: Build the SAM application
       - name: Build SAM Application
         env:
-          SAM_CLI_TELEMETRY: 0  # Disable telemetry to avoid unnecessary warnings
+          SAM_CLI_TELEMETRY: 0
           PYTHONPATH: /usr/bin/python3.8
         run: |
           sam build --template-file prafuls-webapp/template.yaml --build-dir .aws-sam/build
 
-      # Step 7: Deploy SAM application
+      # Step 7: Deploy SAM Application
       - name: Deploy SAM Application
         run: |
           sam deploy --template-file .aws-sam/build/template.yaml \
                      --stack-name prafuls-serverless-app \
                      --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
                      --no-confirm-changeset --region us-east-1 \
-                     --resolve-s3  # Automatically create a managed bucket
-             
+                     --resolve-s3
 
-      # Step 8: Fetch S3 Bucket Name from CloudFormation Outputs
-      - name: Fetch S3 Bucket Name
-        id: fetch-s3-bucket
+      # Step 8: Fetch CloudFormation Outputs
+      - name: Fetch CloudFormation Outputs
+        id: fetch-s3-buckets
         run: |
-          S3_BUCKET=$(aws cloudformation describe-stacks \
+          S3_STATIC_BUCKET=$(aws cloudformation describe-stacks \
             --stack-name prafuls-serverless-app \
             --query "Stacks[0].Outputs[?OutputKey=='StaticWebsiteBucketName'].OutputValue" \
             --output text)
-          echo "S3_BUCKET=$S3_BUCKET" >> $GITHUB_ENV
+          RESUME_BUCKET=$(aws cloudformation describe-stacks \
+            --stack-name prafuls-serverless-app \
+            --query "Stacks[0].Outputs[?OutputKey=='ResumeBucketArn'].OutputValue" \
+            --output text | cut -d':' -f6)
+          echo "S3_STATIC_BUCKET=$S3_STATIC_BUCKET" >> $GITHUB_ENV
+          echo "RESUME_BUCKET=$RESUME_BUCKET" >> $GITHUB_ENV
 
       # Step 9: Upload Static Site to S3
       - name: Upload Static Site to S3
         run: |
-          echo "Deploying to S3 Bucket: $S3_BUCKET"
-          if [ -z "$S3_BUCKET" ]; then
-            echo "Error: S3_BUCKET is not set. Ensure your CloudFormation stack has been deployed.";
+          echo "Deploying to S3 Bucket: $S3_STATIC_BUCKET"
+          if [ -z "$S3_STATIC_BUCKET" ]; then
+            echo "Error: S3_STATIC_BUCKET is not set. Ensure your CloudFormation stack has been deployed.";
             exit 1;
           fi
-          aws s3 sync prafuls-webapp/static-site s3://$S3_BUCKET --delete
+          aws s3 sync prafuls-webapp/static-site s3://$S3_STATIC_BUCKET --delete
+
+      # Step 10: Upload Resume to ResumeBucket
+      - name: Upload Resume to ResumeBucket
+        run: |
+          echo "Uploading Resume to S3 Bucket: $RESUME_BUCKET"
+          if [ -z "$RESUME_BUCKET" ]; then
+            echo "Error: RESUME_BUCKET is not set. Ensure your CloudFormation stack has been deployed.";
+            exit 1;
+          fi
+          aws s3 cp prafuls-webapp/static-site/sample_resume.pdf s3://$RESUME_BUCKET/

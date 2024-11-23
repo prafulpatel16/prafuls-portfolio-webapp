@@ -154,7 +154,7 @@ Resources:
 Outputs:
   StaticSiteURL:
     Description: "URL of the static website hosted in S3"
-    Value: !GetAtt S3StaticWebAppBucket.WebsiteURL
+    Value: !Sub "http://${S3StaticWebAppBucket}.s3-website.${AWS::Region}.amazonaws.com"
 
   StaticWebsiteBucketName:
     Description: "Name of the S3 bucket for the static website"
